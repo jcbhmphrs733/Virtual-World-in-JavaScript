@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>World Editor</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1>World Editor</h1>
+        <canvas id="myCanvas"></canvas>
+
+        <div id="controls">
+            
+            <button onclick="addRandomPoint()">Random Point</button>
+            <!-- <button onclick="addRandomSegment()">Random Line</button> -->
+            <button onclick="removeRandomSegment()">Remove Random Line</button>
+            <button onclick="removeRandomPoint()">Remove Random Point</button>
+            <button onclick="removeAll()">CLEAR ALL</button>
+            
+        </div>
+
+        <script src="js/viewport.js"></script>
+        <script src="js/graphEditor.js"></script>
+        <script src="js/math/utils.js"></script>
+        <script src="js/math/graph.js"></script>
+        <script src="js/primitives/point.js"></script>
+        <script src="js/primitives/segment.js"></script>
+
+
+
+
+        <script>
+
+            function update() {
+                ctx.clearRect(0,0, myCanvas.width, myCanvas.height);
+                graph.draw(ctx);
+            }
+
+            function removeAll() {
+                graph.dispose();
+                update()
+            }
+
+            function removeRandomPoint() {
+                if (graph.points.length == 0) {
+                    console.log("no points");
+                    return;
+                }
+                const index = Math.floor(Math.random() * graph.points.length);
+                graph.removePoint(graph.points[index]);
+                update()
+            }
+
+            function removeRandomSegment() {
+                if (graph.segments.length == 0) {
+                    console.log("no segments");
+                    return;
+                }
+                const index = Math.floor(Math.random() * graph.points.length);
+                graph.removeSegment(graph.segments[index]);
+                update()
+            }
+
+            function addRandomSegment() {
+                const index1 = Math.floor(Math.random() * graph.points.length);
+                const index2 = Math.floor(Math.random() * graph.points.length);
+                const success = graph.tryAddSegment(new Segment(graph.points[index1], graph.points[index2]));
+                update()
+            }
+
+            function addRandomPoint() {
+                const success = graph.tryAddPoint(new Point(Math.random() * myCanvas.width, Math.random() * myCanvas.height));
+                update()
+            }
+
+            myCanvas.width = 700;
+            myCanvas.height = 700;
+
+            const ctx = myCanvas.getContext("2d");
+
+            const p1 = new Point(100, 200);
+            const p2 = new Point(300, 300);
+            const p3 = new Point(200, 400);
+            const p4 = new Point(200, 100);
+
+            const s1 = new Segment(p1, p2);
+            const s2 = new Segment(p1, p3);
+            const s3 = new Segment(p1, p4);
+            const s4 = new Segment(p2, p4);
+
+
+            const graph = new Graph([p1,p2,p3,p4], [s1,s2,s3,s4]);
+            const viewport = new Viewport(myCanvas);
+            const graphEditor = new GraphEditor(viewport, graph);
+
+            animate();
+
+            function animate() {
+                viewport.reset();
+                graphEditor.display();
+                requestAnimationFrame(animate);
+            }
+        </script>
+    </body>
+</html>
